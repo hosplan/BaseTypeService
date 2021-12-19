@@ -41,7 +41,7 @@ namespace BaseTypeService
             });
             services.AddCors();
             services.AddDbContext<BaseTypeContext>(options =>
-             options.UseSqlServer("Server=192.168.0.10,1433;Database=GardenUserSDB;User Id=SA;Password=emth022944w!;"));
+             options.UseSqlServer("Server=192.168.0.10,1433;Database=GardenBaseTypeSDB;User Id=SA;Password=emth022944w!;"));
 
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(options =>
             {
