@@ -97,7 +97,7 @@ namespace BaseTypeService
             }
 
             app.UseCors(builder =>
-            builder.WithOrigins("https://localhost:49155")
+            builder.WithOrigins("https://localhost:49157")
                               .AllowAnyHeader()
                               .AllowAnyMethod()
                               .AllowCredentials());

@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace BaseTypeService.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("/base_root_type")]
     [ApiController]
     public class BaseRootTypeController : ControllerBase
     {
@@ -20,12 +20,27 @@ namespace BaseTypeService.Controllers
             _context = context;
         }
 
+        [HttpGet("{id}")]
+        public IActionResult GetBaseRootType(int id)
+        {
+            try
+            {
+                BaseRootType baseRootType = _context.BaseRootType.FirstOrDefault(b => b.Id == id);
+                return Ok(new { token = true, data = baseRootType });
+            }
+            catch (Exception ex)
+            {
+                string error = ex.Message;
+                return Ok(new { token = false, data = "오류가 발생 했습니다." });
+            }                       
+        }
+
         [HttpGet]
         public IActionResult Load()
         {            
             try
             {                
-                return Ok(new { token = true , data = _context.BaseBranchType.ToList() });
+                return Ok(new { token = true , data = _context.BaseRootType.ToList() });
             }
             catch(Exception ex)
             {
