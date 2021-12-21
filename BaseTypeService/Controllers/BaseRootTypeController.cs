@@ -2,6 +2,7 @@
 using BaseTypeService.Model;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -54,6 +55,11 @@ namespace BaseTypeService.Controllers
         {
             try
             {
+                if (CheckDuplicationName(baseRootType) == false)
+                {
+                    return Ok(new { token = false, data = "이름이 중복 되었어요." });
+                }
+
                 _context.Add(baseRootType);
                 await _context.SaveChangesAsync();
 
@@ -70,6 +76,11 @@ namespace BaseTypeService.Controllers
         {
             try
             {
+                if (CheckDuplicationName(baseRootType) == false)
+                {
+                    return Ok(new { token = false, data = "이름이 중복 되었어요." });
+                }
+
                 var updateValue = _context.BaseRootType.FirstOrDefault(b => b.Id == baseRootType.Id);
 
                 if(updateValue == null) { return Ok(new { token = false }); }
@@ -81,12 +92,60 @@ namespace BaseTypeService.Controllers
                 _context.Update(updateValue);
                 await _context.SaveChangesAsync();
 
-                return Ok(new { token = false });
+                return Ok(new { token = true });
             }
             catch(Exception ex)
             {
                 string error = ex.Message;
                 return Ok(new { token = false });
+            }
+        }
+
+        [HttpDelete]
+        public async Task<IActionResult> Delete([FromBody] BaseRootType removeValue)
+        {
+            try
+            {
+                BaseRootType baseRootType = _context.BaseRootType
+                                                    .Include(b => b.BaseBrachTypes)
+                                                    .FirstOrDefault(b => b.Id == removeValue.Id);
+                //BaseBrachType 삭제
+                _context.RemoveRange(baseRootType.BaseBrachTypes);
+                await _context.SaveChangesAsync();
+
+                //BaseRootType 삭제
+                _context.Remove(baseRootType);
+                await _context.SaveChangesAsync();
+                
+                return Ok(new { token = true });
+            }
+            catch(Exception ex)
+            {
+                string error = ex.Message;
+                return Ok(new { token = false });
+            }
+        }
+
+        /// <summary>
+        /// 타입 이름 중복검사
+        /// </summary>
+        /// <param name="baseRootType"></param>
+        /// <returns></returns>
+        private bool CheckDuplicationName(BaseRootType baseRootType)
+        {
+            try
+            {
+                if (_context.BaseRootType.FirstOrDefault(b => b.Name == baseRootType.Name) != null)
+                {
+                    return false;
+                }
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                string error = ex.Message;
+                return false;
             }
         }
     }
