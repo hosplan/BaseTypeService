@@ -63,7 +63,7 @@ namespace BaseTypeService.Controllers
                 _context.Add(baseRootType);
                 await _context.SaveChangesAsync();
 
-                return Ok(new { token = true });
+                return Ok(new { token = true, data = baseRootType });
             }
             catch(Exception ex)
             {
@@ -76,23 +76,17 @@ namespace BaseTypeService.Controllers
         {
             try
             {
-                if (CheckDuplicationName(baseRootType) == false)
-                {
-                    return Ok(new { token = false, data = "이름이 중복 되었어요." });
-                }
-
                 var updateValue = _context.BaseRootType.FirstOrDefault(b => b.Id == baseRootType.Id);
 
                 if(updateValue == null) { return Ok(new { token = false }); }
 
                 updateValue.Name = baseRootType.Name;
                 updateValue.Description = baseRootType.Description;
-                updateValue.Color = baseRootType.Color;
 
                 _context.Update(updateValue);
                 await _context.SaveChangesAsync();
 
-                return Ok(new { token = true });
+                return Ok(new { token = true, data = updateValue });
             }
             catch(Exception ex)
             {
@@ -109,6 +103,7 @@ namespace BaseTypeService.Controllers
                 BaseRootType baseRootType = _context.BaseRootType
                                                     .Include(b => b.BaseBrachTypes)
                                                     .FirstOrDefault(b => b.Id == removeValue.Id);
+                int id = baseRootType.Id;
                 //BaseBrachType 삭제
                 _context.RemoveRange(baseRootType.BaseBrachTypes);
                 await _context.SaveChangesAsync();
@@ -117,7 +112,7 @@ namespace BaseTypeService.Controllers
                 _context.Remove(baseRootType);
                 await _context.SaveChangesAsync();
                 
-                return Ok(new { token = true });
+                return Ok(new { token = true , data = id });
             }
             catch(Exception ex)
             {

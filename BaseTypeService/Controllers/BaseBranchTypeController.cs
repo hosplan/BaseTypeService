@@ -2,7 +2,9 @@
 using BaseTypeService.Model;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -39,12 +41,29 @@ namespace BaseTypeService.Controllers
         {
             try
             {
-                return Ok(new { token = true, data = _context.BaseBranchType.Where(b => b.BaseRootTypeId == id).ToList() });
+                return Ok(new { token = true, data = _context.BaseBranchType.AsNoTracking().Where(b => b.BaseRootTypeId == id).ToList() });
             }
             catch (Exception ex)
             {
                 string error = ex.Message;
-                return Ok(new { token = false, data = "에러가 발생했습니다." });
+                return Ok(new { token = false, data = "오류가 발생 했어요.." });
+            }
+        }
+
+        [HttpGet]
+        public IActionResult Load()
+        {
+            try
+            {
+                List<BaseRootType> rootTypes = _context.BaseRootType.AsNoTracking().ToList();
+                List<BaseBranchType> branchTypes = _context.BaseBranchType.AsNoTracking().ToList();
+
+                return Ok(new { token = true, branchTypes = branchTypes, rootTypes = rootTypes });
+            }
+            catch(Exception ex)
+            {
+                string error = ex.Message;
+                return Ok(new { token = false, data = "오류가 발생 했어요.." });
             }
         }
 
@@ -61,7 +80,7 @@ namespace BaseTypeService.Controllers
                 _context.Add(baseBranchType);
                 await _context.SaveChangesAsync();
 
-                return Ok(new { token = true });
+                return Ok(new { token = true, data = baseBranchType });
             }
             catch (Exception ex)
             {
@@ -76,10 +95,6 @@ namespace BaseTypeService.Controllers
         {
             try
             {
-                if (CheckDuplicationName(baseBranchType) == false)
-                {
-                    return Ok(new { token = false, data = "이름이 중복 되었어요." });
-                }
 
                 BaseBranchType updateValue = _context.BaseBranchType.FirstOrDefault(b => b.Id == baseBranchType.Id);
 
@@ -92,7 +107,7 @@ namespace BaseTypeService.Controllers
                 _context.Update(updateValue);
                 await _context.SaveChangesAsync();
 
-                return Ok(new { token = true });
+                return Ok(new { token = true , data = updateValue });
             }
             catch (Exception ex)
             {
@@ -107,11 +122,11 @@ namespace BaseTypeService.Controllers
             try
             {
                 BaseBranchType baseBranchType = _context.BaseBranchType.FirstOrDefault(b => b.Id == removeValue.Id);
-
+                int id = baseBranchType.Id;
                 _context.Remove(baseBranchType);
                 await _context.SaveChangesAsync();
 
-                return Ok(new { token = true });
+                return Ok(new { token = true, data = id });
             }
             catch (Exception ex)
             {

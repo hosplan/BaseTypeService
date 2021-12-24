@@ -51,9 +51,6 @@ namespace BaseTypeService.Migrations
                         .HasColumnType("int")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-                    b.Property<string>("Color")
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<string>("Description")
                         .HasColumnType("nvarchar(max)");
 
@@ -68,12 +65,17 @@ namespace BaseTypeService.Migrations
             modelBuilder.Entity("BaseTypeService.Model.BaseBranchType", b =>
                 {
                     b.HasOne("BaseTypeService.Model.BaseRootType", "BaseRootType")
-                        .WithMany()
+                        .WithMany("BaseBrachTypes")
                         .HasForeignKey("BaseRootTypeId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("BaseRootType");
+                });
+
+            modelBuilder.Entity("BaseTypeService.Model.BaseRootType", b =>
+                {
+                    b.Navigation("BaseBrachTypes");
                 });
 #pragma warning restore 612, 618
         }
